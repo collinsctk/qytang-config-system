@@ -55,7 +55,9 @@ services:
     command: celery -A app.worker.app worker --loglevel=INFO --concurrency=8
     volumes:
       - ./license:/app/license
+      - /etc/localtime:/etc/localtime:ro
     environment:
+      TZ: Asia/Shanghai
       DATABASE_URL: postgresql+psycopg://postgres:postgres@postgres:5432/network_config
       CELERY_BROKER_URL: redis://redis:6379/0
       CELERY_RESULT_BACKEND: redis://redis:6379/1
@@ -74,7 +76,9 @@ services:
     command: python -m app.schedulers.backup_scheduler
     volumes:
       - ./license:/app/license
+      - /etc/localtime:/etc/localtime:ro
     environment:
+      TZ: Asia/Shanghai
       DATABASE_URL: postgresql+psycopg://postgres:postgres@postgres:5432/network_config
       CELERY_BROKER_URL: redis://redis:6379/0
       CELERY_RESULT_BACKEND: redis://redis:6379/1
@@ -91,7 +95,9 @@ services:
     command: uvicorn main:app --host 0.0.0.0 --port 8000
     volumes:
       - ./license:/app/license
+      - /etc/localtime:/etc/localtime:ro
     environment:
+      TZ: Asia/Shanghai
       DATABASE_URL: postgresql+psycopg://postgres:postgres@postgres:5432/network_config
       REDIS_URL: redis://redis:6379
       S3_ENDPOINT: http://minio:9000
