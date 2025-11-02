@@ -85,7 +85,7 @@ CREATE TABLE IF NOT EXISTS system_configs (
 INSERT INTO users (username, hashed_password, is_active, is_admin, created_at) 
 VALUES (
     'admin', 
-    '$2b$12$DL6EBAQVH6W7RObUxPRTQOsrpHETsOwm0c9oZpY3fh7GGALqxP3rO',
+    '$pbkdf2-sha256$29000$2NtbK8WYMwbgvFeKkbL2/g$X32yjV5fAPB5rhzs38SDKLIFsgMD6VSGdWKZTkxe7b8',
     true, 
     true, 
     NOW()
@@ -148,5 +148,60 @@ CREATE TABLE IF NOT EXISTS backup_results (
     diff_text TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- Cisco PSIRT 安全通告表
+CREATE TABLE IF NOT EXISTS cisco_psirt_advisories (
+    id SERIAL PRIMARY KEY,
+    advisory_id VARCHAR(100) UNIQUE NOT NULL,
+    advisory_title TEXT NOT NULL,
+    summary TEXT,
+    sir VARCHAR(50),
+    cvss_base_score VARCHAR(10),
+    first_published TIMESTAMP WITH TIME ZONE,
+    last_updated TIMESTAMP WITH TIME ZONE,
+    status VARCHAR(50),
+    publication_url TEXT,
+    raw_json JSONB,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE
+);
+
+-- 受影响产品版本表
+CREATE TABLE IF NOT EXISTS cisco_psirt_products (
+    id SERIAL PRIMARY KEY,
+    advisory_id VARCHAR(100) NOT NULL REFERENCES cisco_psirt_advisories(advisory_id) ON DELETE CASCADE,
+    product_name VARCHAR(255),
+    product_family VARCHAR(100),
+    affected_versions JSONB,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- CVE映射表
+CREATE TABLE IF NOT EXISTS cisco_psirt_cves (
+    id SERIAL PRIMARY KEY,
+    advisory_id VARCHAR(100) NOT NULL REFERENCES cisco_psirt_advisories(advisory_id) ON DELETE CASCADE,
+    cve_id VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 搜索优化索引表
+CREATE TABLE IF NOT EXISTS cisco_psirt_search_index (
+    id SERIAL PRIMARY KEY,
+    advisory_id VARCHAR(100) NOT NULL REFERENCES cisco_psirt_advisories(advisory_id) ON DELETE CASCADE,
+    product_type VARCHAR(50),
+    version_major INT,
+    version_minor INT,
+    version_patch INT,
+    version_letter VARCHAR(5),
+    is_affected BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 创建索引以提升查询性能
+CREATE INDEX IF NOT EXISTS idx_cisco_advisory_id ON cisco_psirt_advisories(advisory_id);
+CREATE INDEX IF NOT EXISTS idx_cisco_product_advisory ON cisco_psirt_products(advisory_id);
+CREATE INDEX IF NOT EXISTS idx_cisco_cve_id ON cisco_psirt_cves(cve_id);
+CREATE INDEX IF NOT EXISTS idx_cisco_search_product_type ON cisco_psirt_search_index(product_type);
+CREATE INDEX IF NOT EXISTS idx_cisco_search_version ON cisco_psirt_search_index(version_major, version_minor, version_patch);
 
 
