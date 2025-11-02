@@ -50,6 +50,23 @@ services:
       echo 'bucket ok';
       "
 
+  influxdb2:
+    image: influxdb:2.7.12
+    container_name: influxdb2
+    restart: unless-stopped
+    ports:
+      - "8086:8086"
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: admin12345
+      DOCKER_INFLUXDB_INIT_ORG: qytang
+      DOCKER_INFLUXDB_INIT_BUCKET: qytangdb
+      DOCKER_INFLUXDB_INIT_RETENTION: 0
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: dev-CTK-InfluxToken-2nkC6eUhZ8yV1mQfX4s7R3bP9aLw5KdG
+    volumes:
+      - influx2_data:/var/lib/influxdb2
+
   celery_worker:
     image: collinsctk/qytang-config-system-backend:3.0.1
     command: celery -A app.worker.app worker --loglevel=INFO --concurrency=8
@@ -105,6 +122,11 @@ services:
       S3_SECRET_KEY: Cisc0123
       S3_BUCKET: network-config-backups
       BACKUP_RETENTION_DAYS: "365"
+      INFLUX_WRITE_DEFAULTS: "true"
+      INFLUX_URL: http://influxdb2:8086
+      INFLUX_DATABASE: qytangdb
+      INFLUX_TOKEN: dev-CTK-InfluxToken-2nkC6eUhZ8yV1mQfX4s7R3bP9aLw5KdG
+      INFLUX_VERIFY_SSL: "false"
     ports:
       - "8000:8000"
     depends_on:
