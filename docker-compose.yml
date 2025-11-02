@@ -68,7 +68,7 @@ services:
       - influx2_data:/var/lib/influxdb2
 
   celery_worker:
-    image: collinsctk/qytang-config-system-backend:3.0.1
+    image: collinsctk/qytang-config-system-backend:3.0.2
     command: celery -A app.worker.app worker --loglevel=INFO --concurrency=8
     volumes:
       - ./license:/app/license
@@ -89,7 +89,7 @@ services:
       - createbucket
 
   backup_scheduler:
-    image: collinsctk/qytang-config-system-backend:3.0.1
+    image: collinsctk/qytang-config-system-backend:3.0.2
     command: python -m app.schedulers.backup_scheduler
     volumes:
       - ./license:/app/license
@@ -108,7 +108,7 @@ services:
       - createbucket
 
   backend:
-    image: collinsctk/qytang-config-system-backend:3.0.1
+    image: collinsctk/qytang-config-system-backend:3.0.2
     command: uvicorn main:app --host 0.0.0.0 --port 8000
     volumes:
       - ./license:/app/license
