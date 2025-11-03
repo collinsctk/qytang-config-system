@@ -72,6 +72,7 @@ services:
     command: celery -A app.worker.app worker --loglevel=INFO --concurrency=8
     volumes:
       - ./license:/app/license
+      - ./license/pyarmor.rkey:/app/pyarmor.rkey:ro
       - /etc/localtime:/etc/localtime:ro
     environment:
       TZ: Asia/Shanghai
@@ -93,6 +94,7 @@ services:
     command: python -m app.schedulers.backup_scheduler
     volumes:
       - ./license:/app/license
+      - ./license/pyarmor.rkey:/app/pyarmor.rkey:ro
       - /etc/localtime:/etc/localtime:ro
     environment:
       TZ: Asia/Shanghai
@@ -112,6 +114,7 @@ services:
     command: uvicorn main:app --host 0.0.0.0 --port 8000
     volumes:
       - ./license:/app/license
+      - ./license/pyarmor.rkey:/app/pyarmor.rkey:ro
       - /etc/localtime:/etc/localtime:ro
     environment:
       TZ: Asia/Shanghai
@@ -134,6 +137,23 @@ services:
       - redis
       - minio
       - createbucket
+
+  snmp_scheduler:
+    image: collinsctk/qytang-config-system-backend:3.0.5
+    command: python -m app.schedulers.snmp_scheduler
+    volumes:
+      - ./license:/app/license
+      - ./license/pyarmor.rkey:/app/pyarmor.rkey:ro
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      TZ: Asia/Shanghai
+      DATABASE_URL: postgresql+psycopg://postgres:postgres@postgres:5432/network_config
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - redis
+      - postgres
 
 volumes:
   postgres_data:
