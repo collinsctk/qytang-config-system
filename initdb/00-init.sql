@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS users (
     hashed_password VARCHAR(255) NOT NULL,
     is_active BOOLEAN DEFAULT TRUE,
     is_admin BOOLEAN DEFAULT FALSE,
+    timezone VARCHAR(64),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE
 );
@@ -203,5 +204,4 @@ CREATE INDEX IF NOT EXISTS idx_cisco_product_advisory ON cisco_psirt_products(ad
 CREATE INDEX IF NOT EXISTS idx_cisco_cve_id ON cisco_psirt_cves(cve_id);
 CREATE INDEX IF NOT EXISTS idx_cisco_search_product_type ON cisco_psirt_search_index(product_type);
 CREATE INDEX IF NOT EXISTS idx_cisco_search_version ON cisco_psirt_search_index(version_major, version_minor, version_patch);
-
 
