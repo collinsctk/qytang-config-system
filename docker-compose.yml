@@ -68,8 +68,8 @@ services:
       - influx2_data:/var/lib/influxdb2
 
   celery_worker:
-    image: collinsctk/qytang-config-system-backend:3.1.4
-    command: celery -A app.worker.app worker --loglevel=INFO --concurrency=8
+    image: collinsctk/qytang-config-system-backend:3.1.5
+    command: celery -A app.worker.app worker --loglevel=INFO --concurrency=64
     volumes:
       - ./license:/app/license
       - ./license/pyarmor.rkey:/app/pyarmor.rkey:ro
@@ -90,7 +90,7 @@ services:
       - createbucket
 
   backup_scheduler:
-    image: collinsctk/qytang-config-system-backend:3.1.4
+    image: collinsctk/qytang-config-system-backend:3.1.5
     command: python -m app.schedulers.backup_scheduler
     volumes:
       - ./license:/app/license
@@ -110,7 +110,7 @@ services:
       - createbucket
 
   backend:
-    image: collinsctk/qytang-config-system-backend:3.1.4
+    image: collinsctk/qytang-config-system-backend:3.1.5
     command: uvicorn main:app --host 0.0.0.0 --port 8080
     volumes:
       - ./license:/app/license
@@ -139,7 +139,7 @@ services:
       - createbucket
 
   snmp_scheduler:
-    image: collinsctk/qytang-config-system-backend:3.1.4
+    image: collinsctk/qytang-config-system-backend:3.1.5
     command: python -m app.schedulers.snmp_scheduler
     volumes:
       - ./license:/app/license
